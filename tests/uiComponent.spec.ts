@@ -84,3 +84,84 @@ test('dropdowns', async ({ page }) => {
     }
   }
 });
+
+test('tooltip', async ({ page }) => {
+  await page.getByText('Modal & Overlays').click();
+  await page.getByText('Tooltip').click();
+
+  const tooltipNbCard = page.locator('nb-card', {hasText: 'Tooltip Placements'});
+  await tooltipNbCard.getByRole('button', {name: "Top"}).hover();
+
+  await expect(page.locator('nb-tooltip')).toHaveText('This is a tooltip');
+});
+
+test('dialog box', async ({ page }) => {
+  await page.getByText('Tables & Data').click();
+  await page.getByText('Smart Table').click();
+
+
+  page.on('dialog', async dialog => {
+    expect(dialog.message()).toEqual('Are you sure you want to delete?');
+    dialog.accept();
+  });
+
+  await page.getByRole('table').locator('tr', {hasText: 'mdo@gmail.com'}).locator('.nb-trash').click();
+
+  await expect(page.locator('table tbody tr').first()).not.toHaveText('mdo@gmail.com');
+});
+
+test('web tables', async ({ page }) => {
+  await page.getByText('Tables & Data').click();
+  await page.getByText('Smart Table').click();
+
+  const targetRow = page.getByRole('row').filter({hasText: 'twitter@outlook.com'});
+  // const targetRow = page.getByRole('row', {hasText: 'twitter@outlook.com'});
+  await targetRow.locator('.nb-edit').click();
+
+  await page.locator('input-editor').getByPlaceholder('Age').clear();
+  await page.locator('input-editor').getByPlaceholder('Age').fill('35');
+  await page.locator('ng-checkmark').click();
+
+  await page.locator('.ng2-smart-pagination-nav').getByText('2').click();
+  const targetRowById = page.getByRole('row', {name: '11'}).filter({has: page.locator('td').nth(1).getByText('11')});
+  await targetRowById.locator('.nb-edit').click();
+  await page.locator('input-editor').getByPlaceholder('E-mail').clear();
+  await page.locator('input-editor').getByPlaceholder('E-mail').fill('test@test.com');
+  await page.locator('ng-checkmark').click();
+
+});
+
+test('web tables2', async ({ page }) => {
+  await page.getByText('Tables & Data').click();
+  await page.getByText('Smart Table').click();
+
+  // 進行 table 過濾測試
+  const agesToFilter = ['20', '30', '40', '200'];
+  for (const age of agesToFilter) {
+    await page.locator('input-filter').getByPlaceholder('Age').clear();
+    await page.locator('input-filter').getByPlaceholder('Age').fill(age);
+    await page.waitForTimeout(500);
+    const ageRows = page.locator('table tbody tr');
+
+    for (const row of await ageRows.all()) {
+      const cellValue = await row.locator('td').last().textContent();
+      if (age === '200') {
+        expect(await page.getByRole('table').textContent()).toContain('No data found');
+        // expect(cellValue).not.toEqual('No data found');
+      } else {
+        expect(cellValue).toEqual(age);
+      }
+    }
+  }
+});
+
+test('datepicker', async ({ page }) => {
+  await page.getByText('Forms').click();
+  await page.getByText('Datepicker').click();
+
+  const calInputField = page.getByPlaceholder('Form Picker');
+  await calInputField.click();
+
+  await page.locator('.day-cell.ng-star-inserted:not(.bounding-month)').getByText('1', {exact: true}).click();
+
+});
