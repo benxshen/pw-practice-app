@@ -120,14 +120,14 @@ test('web tables', async ({ page }) => {
 
   await page.locator('input-editor').getByPlaceholder('Age').clear();
   await page.locator('input-editor').getByPlaceholder('Age').fill('35');
-  await page.locator('ng-checkmark').click();
+  await page.locator('.nb-checkmark').click();
 
   await page.locator('.ng2-smart-pagination-nav').getByText('2').click();
   const targetRowById = page.getByRole('row', {name: '11'}).filter({has: page.locator('td').nth(1).getByText('11')});
   await targetRowById.locator('.nb-edit').click();
   await page.locator('input-editor').getByPlaceholder('E-mail').clear();
   await page.locator('input-editor').getByPlaceholder('E-mail').fill('test@test.com');
-  await page.locator('ng-checkmark').click();
+  await page.locator('.nb-checkmark').click();
 
 });
 
