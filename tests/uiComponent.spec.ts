@@ -165,3 +165,30 @@ test('datepicker', async ({ page }) => {
   await page.locator('.day-cell.ng-star-inserted:not(.bounding-month)').getByText('1', {exact: true}).click();
 
 });
+
+test('datepicker part2', async ({ page }) => {
+  await page.getByText('Forms').click();
+  await page.getByText('Datepicker').click();
+
+  const calInputField = page.getByPlaceholder('Form Picker');
+  await calInputField.click();
+
+  const date = new Date();
+  date.setDate(date.getDate() + 20);
+  const expectDate = date.getDate().toString();
+  const expectMonthShort = date.toLocaleString('en-US', {month: 'short'});
+  const expectMonthLong = date.toLocaleString('en-US', {month: 'long'});
+  const expectYear = date.getFullYear().toString();
+  const dateToAssert = `${expectMonthShort} ${expectDate}, ${expectYear}`;
+
+  let calMonthYear = await page.locator('nb-calendar-view-mode').textContent();
+  const expectMonthAndYear = `${expectMonthLong} ${expectYear}`;
+
+  while(!expectMonthAndYear.includes(calMonthYear.trim())) {
+    await page.locator('nb-calendar-pageable-navigation button.next-month').click();
+    calMonthYear = await page.locator('nb-calendar-view-mode').textContent();
+  }
+
+  await page.locator('.day-cell.ng-star-inserted:not(.bounding-month)').getByText(expectDate, {exact: true}).click();
+  await expect(calInputField).toHaveValue(dateToAssert);
+});
