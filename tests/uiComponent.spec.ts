@@ -192,3 +192,26 @@ test('datepicker part2', async ({ page }) => {
   await page.locator('.day-cell.ng-star-inserted:not(.bounding-month)').getByText(expectDate, {exact: true}).click();
   await expect(calInputField).toHaveValue(dateToAssert);
 });
+
+test('slider', async ({ page }) => {
+  const tempGauge = page.locator('nb-tab[tabtitle="Temperature"] ngx-temperature-dragger circle');
+  await tempGauge.evaluate((el) => {
+    el.setAttribute('cx', '86.717');
+    el.setAttribute('cy', '20.325');
+  });
+  await tempGauge.click();
+});
+
+test('slider - simulate mouse drag', async ({ page }) => {
+  const tempBox = page.locator('nb-tab[tabtitle="Temperature"] ngx-temperature-dragger');
+  await tempBox.scrollIntoViewIfNeeded();
+
+  const box = await tempBox.boundingBox();
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 100, y);
+  await page.mouse.move(x - 100, y + 100);
+  await page.mouse.up();
+});
